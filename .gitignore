@@ -23,5 +23,6 @@ dist/*
 .docs
 docs
 data
+data-raw
 
 
