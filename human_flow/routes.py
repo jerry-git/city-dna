@@ -27,7 +27,7 @@ def drives():
     return jsonify(
         [
             {
-                "path": [[row.start_lat, row.start_lon], [row.end_lat, row.end_lon]],
+                "path": [[row.start_lon, row.start_lat], [row.end_lon, row.end_lat]],
                 "timestamps": [str(row.departure_time), str(row.return_time)],
             }
             for _, row in df.iterrows()
