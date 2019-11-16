@@ -1,10 +1,11 @@
 /* global window */
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
-import { PolygonLayer, } from '@deck.gl/layers';
+import { PolygonLayer, ScatterplotLayer } from '@deck.gl/layers';
 import { TripsLayer } from '@deck.gl/geo-layers';
 
+import "./Map.css";
 // Set your mapbox token here
 
 const MAPBOX_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
@@ -67,10 +68,19 @@ export class FlowMap extends Component {
         const {
             trips = DATA_URL.TRIPS,
             trailLength = 180,
-            theme = DEFAULT_THEME
+            theme = DEFAULT_THEME,
+            stationdata = [[24.931223405177413, 60.171870055373205], [24.94947287873, 60.1650171805]]
         } = this.props;
 
         return [
+            new ScatterplotLayer({
+                id: 'scatter-plot',
+                data: stationdata,
+                radiusScale: 20,
+                radiusMinPixels: 0.5,
+                getPosition: d => [d[0], d[1], 0],
+                getColor: d => [255, 255, 0]
+            }),
             // This is only needed when using shadow effects
             new PolygonLayer({
                 id: 'ground',
@@ -105,15 +115,15 @@ export class FlowMap extends Component {
 
         return (
             <React.Fragment>
-                <h1>{this.state.time}</h1>
-                <div style={{ position: "absolute" }}>
+                <h1 class="center">{this.state.time}</h1>
+                <div class="center" style={{ position: "relative" }}>
                     <DeckGL
                         layers={this._renderLayers()}
                         effects={theme.effects}
                         initialViewState={INITIAL_VIEW_STATE}
                         viewState={viewState}
                         controller={true}
-                        width="800px"
+                        width="100%"
                         height="800px"
                     >
                         <StaticMap
@@ -124,6 +134,7 @@ export class FlowMap extends Component {
                         />
                     </DeckGL>
                 </div>
+
             </React.Fragment>
         );
     }
