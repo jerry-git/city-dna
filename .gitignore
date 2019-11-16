@@ -22,7 +22,7 @@ dist/*
 .mypy_cache
 .docs
 docs
-data
-data-raw
+./data
+./data-raw
 
 
