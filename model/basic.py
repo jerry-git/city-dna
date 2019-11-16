@@ -1,8 +1,12 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, LSTM, Embedding
+from keras.layers import Dense, Dropout, LSTM, Embedding, Reshape
 from keras.utils import to_categorical
 
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+
+import pandas as pd
 
 
 def data_preprocessing(data):
@@ -12,23 +16,26 @@ def data_preprocessing(data):
     return train_data, test_data
 
 
-def generate_model(data):
-    num_of_diff_bike_trips = 1000
-    model = Sequential()
+def generate_model(input_training_data, output_training_data):
 
-    model.add(Dense(500, activation='relu', input_dim=100))
-    model.add(Dense(1000, activation='sigmoid'))
+    model = Sequential()
+    model.add(Dense(64, activation='relu',
+                    input_dim=input_training_data.shape[0]))
+    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.3))
-    model.add(Dense(2000, activation='sigmoid'))
+    model.add(Dense(256, activation='relu'))
     model.add(Dropout(0.3))
-    model.add(Dense(2000, activation='sigmoid'))
-    model.add(Dense(num_of_diff_bike_trips, activation='sigmoid'))
-    model.compile(optimizer='rmsprop',
-                  loss='binary_crossentropy',
+    model.add(Dense(512, activation='relu'))
+
+    model.add(Dense(output_training_data.shape[0]), activation='relu')
+
+    model.compile(optimizer='adam',
+                  loss='mean_squared_error',
                   metrics=['accuracy'])
 
     # Train the model, iterating on the data in batches of 32 samples
-    model.fit(data, labels, epochs=10, batch_size=32)
+    model.fit(input_training_data, output_training_data,
+              epochs=20, batch_size=32)
 
     model.save("model.h5")
     return model
@@ -37,9 +44,19 @@ def generate_model(data):
 if __name__ == '__main__':
     train = False
 
+    train_x = []
+    train_y = []
+
+    test_x = []
+    test_y = []
+
     if train:
-        model = model_generation(train_data)
+        model = generate_model(train_x, train_y)
     else:
         model = load_model("model.h5")
 
-    model.predict()
+    score = model.evaluate(test_x, test_y, batch_size=64)
+    print(score)
+    print(model.summary())
+
+    predicet_data = model.predict(test_x)
