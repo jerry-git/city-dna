@@ -8,10 +8,10 @@ from human_flow.data import bike_station
 @app.route("/stations", methods=["GET"])
 def stations():
     return jsonify(
-        {
-            id_: {"lat": info[2], "lon": info[1]}
+        [
+            {"id": id_, "lat": info[2], "lon": info[1]}
             for id_, info in bike_station.LOCATIONS.items()
-        }
+        ]
     )
 
 
