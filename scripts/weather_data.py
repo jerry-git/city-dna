@@ -3,6 +3,10 @@ if __name__ == "__main__":
     from pathlib import Path
     import datetime as dt
 
+    RESULT_CSV = (
+        Path(__file__).parents[1] / "data" / "clean" / "weather" / "2019-07-09.csv"
+    )
+
     DATA_CSV = (
         Path(__file__).parents[1]
         / "data-raw"
@@ -49,7 +53,4 @@ if __name__ == "__main__":
 
     df = df.drop(columns=["year", "month", "day", "tz"])
 
-    RESULT_CSV = (
-        Path(__file__).parents[1] / "data" / "clean" / "weather" / "2019-07-09.csv"
-    )
     df.to_csv(RESULT_CSV, index=False)
