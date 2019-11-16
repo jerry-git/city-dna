@@ -136,9 +136,9 @@ export class FlowMap extends Component {
                 getPath: d => d.path,
                 getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
                 getColor: d => theme.trailColor0,
-                opacity: 0.3,
-                widthMinPixels: 2,
-                rounded: true,
+                opacity: 0.5,
+                widthMinPixels: 4,
+                rounded: false,
                 trailLength,
                 currentTime: this.state.time,
 
