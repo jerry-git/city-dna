@@ -17,7 +17,6 @@ def stations():
 
 @app.route("/drives", methods=["POST"])
 def drives():
-
     payload = request.json
     start = pd.Timestamp(payload["start"])
     end = pd.Timestamp(payload["end"])
