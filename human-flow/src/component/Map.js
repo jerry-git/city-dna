@@ -1,78 +1,132 @@
-
-
-import React from 'react';
-import DeckGL from '@deck.gl/react';
-import { LineLayer, ScatterplotLayer, PathLayer } from '@deck.gl/layers';
+/* global window */
+import React, { Component, Fragment } from 'react';
 import { StaticMap } from 'react-map-gl';
+import DeckGL from '@deck.gl/react';
+import { PolygonLayer, } from '@deck.gl/layers';
+import { TripsLayer } from '@deck.gl/geo-layers';
 
-// Set your mapbox access token here
+// Set your mapbox token here
 
-const MAPBOX_ACCESS_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
+const MAPBOX_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
 
-// Initial viewport settings
-const initialViewState = {
-    latitude: 60.170,
-    longitude: 24.9425964,
-    zoom: 13,
-    pitch: 0,
-    bearing: 0,
-    width: 50,
-    height: 50
+// Source data CSV
+const DATA_URL = {
+    TRIPS:
+        'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips-v7.json' // eslint-disable-line
 };
 
-// Data to be used by the LineLayer
-const data = [{ sourcePosition: [24.941, 60.169], targetPosition: [24.943, 60.172] }];
-const scatterdata = [[24.943, 60.172]]
-const pathdata = [{
-    name: "random-name",
-    color: [101, 147, 245],
-    path: [[-74.00578, 40.713067],
-    [-74.004577, 40.712425],
-    [-74.003626, 40.713650],
-    [-74.002666, 40.714243],
-    [-74.002136, 40.715177],
-    [-73.998493, 40.713452],
-    [-73.997981, 40.713673],
-    [-73.997586, 40.713448],
-    [-73.99256, 40.713863]]
-}
-]
 
-class FlowMap extends React.Component {
+const DEFAULT_THEME = {
+    trailColor0: [253, 128, 93],
+    trailColor1: [23, 184, 190],
+};
+
+const INITIAL_VIEW_STATE = {
+    longitude: 24.91,
+    latitude: 60.17,
+    zoom: 13,
+    pitch: 45,
+    bearing: 0
+};
+
+const landCover = [[[60.17, 24.91], [60.19, 24.91], [60.19, 24.93], [60.17, 24.93]]];
+
+export class FlowMap extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            time: 0
+        };
+    }
+
+    componentDidMount() {
+        this._animate();
+    }
+
+    componentWillUnmount() {
+        if (this._animationFrame) {
+            window.cancelAnimationFrame(this._animationFrame);
+        }
+    }
+
+    _animate() {
+        const {
+            loopLength = 1800, // unit corresponds to the timestamp in source data
+            animationSpeed = 30 // unit time per second
+        } = this.props;
+        const timestamp = Date.now() / 1000;
+        const loopTime = loopLength / animationSpeed;
+
+        this.setState({
+            time: ((timestamp % loopTime) / loopTime) * loopLength
+        });
+        this._animationFrame = window.requestAnimationFrame(this._animate.bind(this));
+    }
+
+    _renderLayers() {
+        const {
+            trips = DATA_URL.TRIPS,
+            trailLength = 180,
+            theme = DEFAULT_THEME
+        } = this.props;
+
+        return [
+            // This is only needed when using shadow effects
+            new PolygonLayer({
+                id: 'ground',
+                data: landCover,
+                getPolygon: f => f,
+                stroked: false,
+                getFillColor: [0, 0, 0, 0]
+            }),
+            new TripsLayer({
+                id: 'trips',
+                data: trips,
+                getPath: d => d.path,
+                getTimestamps: d => d.timestamps,
+                getColor: d => (d.vendor === 0 ? theme.trailColor0 : theme.trailColor1),
+                opacity: 0.3,
+                widthMinPixels: 2,
+                rounded: true,
+                trailLength,
+                currentTime: this.state.time,
+
+                shadowEnabled: false
+            }),
+        ];
+    }
 
     render() {
-        const layers = [
-            new LineLayer({ id: 'line-layer', data }),
-            new ScatterplotLayer({
-                id: 'scatter-layer',
-                radiusScale: 20,
-                radiusMinPixels: 1.0,
-                opacity: 0.8,
-                data: scatterdata,
-                getPosition: data => [data[0], data[1], 0],
-                getColor: [0, 255, 255],
-            }),
-            new PathLayer({
-                id: "path-layer",
-                pathdata,
-                getColor: data => data.color,
-                widthMinPixels: 7
-            })
-        ];
+        const {
+            viewState,
+            mapStyle = 'mapbox://styles/mapbox/dark-v9',
+            theme = DEFAULT_THEME
+        } = this.props;
+
         return (
-
-            <DeckGL
-                initialViewState={initialViewState}
-                layers={layers}
-                height="100%"
-                width="50%"
-                controller={false}
-            >
-                <StaticMap reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
-            </DeckGL>
-
+            <React.Fragment>
+                <h1>{this.state.time}</h1>
+                <div style={{ position: "absolute" }}>
+                    <DeckGL
+                        layers={this._renderLayers()}
+                        effects={theme.effects}
+                        initialViewState={INITIAL_VIEW_STATE}
+                        viewState={viewState}
+                        controller={true}
+                        width="800px"
+                        height="800px"
+                    >
+                        <StaticMap
+                            reuseMaps
+                            mapStyle={mapStyle}
+                            preventStyleDiffing={true}
+                            mapboxApiAccessToken={MAPBOX_TOKEN}
+                        />
+                    </DeckGL>
+                </div>
+            </React.Fragment>
         );
     }
 }
-export default FlowMap;
 
+export default FlowMap
