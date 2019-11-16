@@ -20,4 +20,4 @@ dist/*
 *.DS_Store
 .eggs/*
 .mypy_cache
-.docs
+docs
