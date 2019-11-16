@@ -4,7 +4,7 @@ if __name__ == "__main__":
 
     import pandas as pd
 
-    from city_dna.data.bike_station import LOCATIONS
+    from human_flow.data.bike_station import LOCATIONS
 
     DATA_DIR = Path(__file__).parents[1] / "data-raw" / "raw" / "bike"
     START = pd.Timestamp("2019-07-15 00:00:00")

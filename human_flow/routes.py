@@ -1,8 +1,8 @@
 import pandas as pd
 from flask import jsonify, request
 
-from city_dna.app import app
-from city_dna.data import bike_station
+from human_flow.app import app
+from human_flow.data import bike_station
 
 
 @app.route("/stations", methods=["GET"])
