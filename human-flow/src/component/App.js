@@ -1,20 +1,18 @@
 import React from "react";
-import Map from "./Map";
+import FlowMap from "./Map";
+import TimeComponent from "./TimeComponent";
 
 import "./App.css";
 
 class App extends React.Component {
-  state = {
-    total: null,
-    next: null,
-    operation: null,
-  };
-
-
   render() {
     return (
       <div>
-        <Map />
+        <h1>Human Flow</h1>
+        <div class="rowClass">
+          <FlowMap />
+        </div>
+        {/* <TimeComponent /> */}
       </div>
     );
   }

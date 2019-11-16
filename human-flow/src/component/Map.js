@@ -1,65 +1,78 @@
-import "mapbox-gl/dist/mapbox-gl.css";
-import React, { Component } from "react";
-import MapGL from "react-map-gl";
-import DeckGL from '@deck.gl/layers';
 
 
-// Please be a decent human and don't abuse my Mapbox API token.
-// Ways to set Mapbox token: https://uber.github.io/react-map-gl/#/Documentation/getting-started/about-mapbox-tokens
-const MAPBOX_TOKEN =
-    "pk.eyJ1Ijoic21peWFrYXdhIiwiYSI6ImNqcGM0d3U4bTB6dWwzcW04ZHRsbHl0ZWoifQ.X9cvdajtPbs9JDMG-CMDsA";
+import React from 'react';
+import DeckGL from '@deck.gl/react';
+import { LineLayer, ScatterplotLayer, PathLayer } from '@deck.gl/layers';
+import { StaticMap } from 'react-map-gl';
 
-class Map extends Component {
-    state = {
-        viewport: {
-            width: 200,
-            height: 400,
-            latitude: 60.17,
-            longitude: 24.9425964,
-            zoom: 13.5
-        },
-        searchResultLayer: null
-    };
+// Set your mapbox access token here
 
-    mapRef = React.createRef();
+const MAPBOX_ACCESS_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
 
-    componentDidMount() {
-        window.addEventListener("resize", this.resize);
-        this.resize();
-    }
+// Initial viewport settings
+const initialViewState = {
+    latitude: 60.170,
+    longitude: 24.9425964,
+    zoom: 13,
+    pitch: 0,
+    bearing: 0,
+    width: 50,
+    height: 50
+};
 
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.resize);
-    }
+// Data to be used by the LineLayer
+const data = [{ sourcePosition: [24.941, 60.169], targetPosition: [24.943, 60.172] }];
+const scatterdata = [[24.943, 60.172]]
+const pathdata = [{
+    name: "random-name",
+    color: [101, 147, 245],
+    path: [[-74.00578, 40.713067],
+    [-74.004577, 40.712425],
+    [-74.003626, 40.713650],
+    [-74.002666, 40.714243],
+    [-74.002136, 40.715177],
+    [-73.998493, 40.713452],
+    [-73.997981, 40.713673],
+    [-73.997586, 40.713448],
+    [-73.99256, 40.713863]]
+}
+]
 
-    resize = () => {
-        this.handleViewportChange({
-            width: window.innerWidth,
-            height: window.innerHeight
-        });
-    };
-
-    handleViewportChange = viewport => {
-        this.setState({
-            viewport: { ...this.state.viewport, ...viewport }
-        });
-    };
-
-
+class FlowMap extends React.Component {
 
     render() {
-        const { viewport } = this.state;
-
+        const layers = [
+            new LineLayer({ id: 'line-layer', data }),
+            new ScatterplotLayer({
+                id: 'scatter-layer',
+                radiusScale: 20,
+                radiusMinPixels: 1.0,
+                opacity: 0.8,
+                data: scatterdata,
+                getPosition: data => [data[0], data[1], 0],
+                getColor: [0, 255, 255],
+            }),
+            new PathLayer({
+                id: "path-layer",
+                pathdata,
+                getColor: data => data.color,
+                widthMinPixels: 7
+            })
+        ];
         return (
-            <MapGL
-                ref={this.mapRef}
-                {...viewport}
-                onViewportChange={this.handleViewportChange}
-                mapboxApiAccessToken={MAPBOX_TOKEN}
+
+            <DeckGL
+                initialViewState={initialViewState}
+                layers={layers}
+                height="100%"
+                width="50%"
+                controller={false}
             >
-            </MapGL>
+                <StaticMap reuseMaps mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
+            </DeckGL>
+
         );
     }
 }
+export default FlowMap;
 
-export default Map; 
