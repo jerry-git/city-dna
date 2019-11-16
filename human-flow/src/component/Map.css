@@ -1,3 +1,7 @@
 .center{
     text-align: center;
+    color:white;
+    background: black;
+    margin:0;
+    padding:10px;
 }
