@@ -21,3 +21,4 @@ dist/*
 .eggs/*
 .mypy_cache
 .docs
+data
