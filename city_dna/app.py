@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 from flask import Flask
+from flask_cors import CORS
 
 DRIVES_DATA_CSV = str(
     Path(__file__).parents[1] / "data" / "clean" / "bike" / "2019-07-09.csv"
@@ -14,6 +15,7 @@ bike_drives_df = pd.read_csv(
 )
 
 app = Flask(__name__)
+CORS(app)
 app.bike_drives_df = bike_drives_df
 
 
