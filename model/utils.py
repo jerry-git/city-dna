@@ -6,11 +6,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from human_flow.data import bike_station
+# from human_flow.data import bike_station
 
-CLUSTERED_LOCATIONS = bike_station.CLUSTERED_LOCATIONS_115
+# CLUSTERED_LOCATIONS =  "" bike_station.CLUSTERED_LOCATIONS_115
 
-STATION_IDS = list(sorted(CLUSTERED_LOCATIONS.keys()))
+# STATION_IDS = list(sorted(CLUSTERED_LOCATIONS.keys()))
 
 DATA_DIR = Path(__file__).parents[1] / "data" / "clean"
 
@@ -30,7 +30,7 @@ def load_weather_df():
 
 def load_results_df():
     df = pd.read_csv(
-        str(Path(__file__).parents[1] / "data" / "clustered-results.csv"),
+        str(Path(__file__).parents[1] / "data" / "clustered-results-20.csv"),
         parse_dates=True,
     )
     df.index = df["Unnamed: 0"]

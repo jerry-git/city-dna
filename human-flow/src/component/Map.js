@@ -1,5 +1,7 @@
 /* global window */
 import React, { Component } from 'react';
+
+import Switch from "react-switch";
 import { StaticMap } from 'react-map-gl';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer } from '@deck.gl/layers';
@@ -13,7 +15,7 @@ import "./Map.css";
 
 const MAPBOX_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
 
-const start_time = "2019-09-06 03:00:00"
+const start_time = "2019-09-06 06:00:00"
 const end_time = "2019-09-06 23:00:00"
 
 
@@ -42,11 +44,16 @@ export class FlowMap extends Component {
             weatherdata: {},
             weather_info_text: "",
             start_of_animation: Date.now() / 1000,
-            start_of_data: this._convert_time(start_time)
+            start_of_data: this._convert_time(start_time),
+            show_prediction: true
 
         };
-    }
 
+        this.handleChange = this.handleChange.bind(this);
+    }
+    handleChange(checked) {
+        this.setState({ checked });
+      }
     componentDidMount() {
         axios({
             method: 'get',
@@ -112,7 +119,7 @@ export class FlowMap extends Component {
         return time.format('X');
     }
     _utx_to_datetime(value) {
-        return moment.unix(value).format("dddd MM/DD/YYYY kk:mm");
+        return moment.unix(value).format("dddd DD-MM-YYYY kk:mm");
     }
 
     _animate() {
@@ -128,7 +135,7 @@ export class FlowMap extends Component {
         var index = Number(this.state.start_of_data) + this.state.time - Number(this._convert_time(this.state.weatherdata[1].time))
         index = Math.floor(index/3600) +1
         this.setState({
-            weather_info_text: " Temp: " + this.state.weatherdata[index].temp + "C " + " Clouds: " + this.state.weatherdata[index].clouds +" Rain: " + this.state.weatherdata[index].rain
+            weather_info_text: "Temp: " + this.state.weatherdata[index].temp + " C, " + " Clouds: " + this.state.weatherdata[index].clouds +"/8, Rain: " + this.state.weatherdata[index].rain +"mm/h"
         });
 
 
@@ -166,7 +173,6 @@ export class FlowMap extends Component {
                 rounded: true,
                 trailLength,
                 currentTime: this.state.time,
-
                 shadowEnabled: false
             }),
             new TripsLayer({
@@ -180,8 +186,8 @@ export class FlowMap extends Component {
                 rounded: true,
                 trailLength,
                 currentTime: this.state.time,
-
-                shadowEnabled: false
+                shadowEnabled: false,
+                visible:this.state.checked
             })
         ];
     }
@@ -189,14 +195,24 @@ export class FlowMap extends Component {
     render() {
         const {
             viewState,
-            mapStyle = 'mapbox://styles/mapbox/dark-v9',
+            mapStyle = 'mapbox://styles/mapbox/dark-v10',
             theme = DEFAULT_THEME
+            
         } = this.props;
+
 
         return (
             <React.Fragment>
-                <h2 className="center">{this._utx_to_datetime(Number(this.state.start_of_data) + this.state.time) }</h2>
-                <h2 className="center">{this.state.weather_info_text}</h2>
+                <div>
+                    <h2 className="center">{this._utx_to_datetime(Number(this.state.start_of_data) + this.state.time) }</h2>
+                    <h2 className="center">{this.state.weather_info_text}</h2>
+                    <div className="toggle">
+                        <Switch onChange={this.handleChange} checked={this.state.checked} uncheckedIcon={false} checkedIcon={false}/>
+                    </div>
+                    <div className="toggle2">
+                        <h3 className="center" >Prediction</h3>
+                    </div>
+                </div>
                 <div style={{ position: "relative" }}>
                     <DeckGL
                         layers={this._renderLayers()}

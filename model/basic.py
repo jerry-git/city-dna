@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
         # visualize
         fig = plt.figure()
-        fig.patch.set_facecolor((1.0, 0.60, 0.9))
+        fig.patch.set_facecolor((0.6, 0.6, 0.7))
         ax1 = fig.add_subplot(121)
         # Bilinear interpolation - this will look blurry
         ax1.imshow(test_y, interpolation='bilinear',

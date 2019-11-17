@@ -4,4 +4,16 @@
     background: black;
     margin:0;
     padding:10px;
+    opacity:0.6;
+}
+.toggle{
+    display:inline-block;
+    padding-left:10px;
+    padding-top:10px;
+    padding-bottom:10px;
+
+}
+.toggle2{
+    display:inline-block;
+    vertical-align: 6px;
 }
