@@ -49,21 +49,27 @@ def project_results_to_rides(results_df):
     rides = defaultdict(list)
     for index, row in results_df.iterrows():
         start = pd.Timestamp(index)
-        for idx, val in row[row >= 0.5].iteritems():
+        for idx, val in row[row >= 0.05].iteritems():
             idx = int(idx)
+
+            # hacky smoothing for low end values
+            if val < 0.5:
+                if random.random() < val:
+                    val = 1
+                else:
+                    continue
+
             val = int(val)
-            # TODO: double check these
-            # breakpoint()
+
             start_cluster_id = idx // len(STATION_IDS)
             end_cluster_id = idx % len(STATION_IDS)
             start_station_ids = CLUSTERED_LOCATIONS[start_cluster_id]
             end_station_ids = CLUSTERED_LOCATIONS[end_cluster_id]
 
             for ride_number in range(val):
-                # split rides equally over the hour
-                time_offset = dt.timedelta(
-                    minutes=int((ride_number + 1) / (val + 1) * 60)
-                )
+                # split rides equally over the hour with some randomizing twist
+                # offset = int((ride_number + 1) / (val + 1) * 60)
+                time_offset = dt.timedelta(minutes=random.randint(0, 60))
                 ride_start = start + time_offset
                 end = ride_start + dt.timedelta(minutes=15)  # avg drive time
                 start_station_id = random.choice(start_station_ids)
@@ -78,13 +84,6 @@ def project_results_to_rides(results_df):
                 rides["end_lat"].append(bike_station.LOCATIONS[end_station_id][2])
                 rides["end_lon"].append(bike_station.LOCATIONS[end_station_id][1])
 
-            """
-            start_idx, end_idx = (
-                find_clustered_id(row.departure_station_id),
-                find_clustered_id(row.return_station_id),
-            )
-            ride_idx = start_idx * len(STATION_IDS) + end_idx
-            """
     rides_df = pd.DataFrame(rides)
     rides_df.to_csv("predictions.csv")
 
@@ -161,7 +160,7 @@ def main():
     # projected_rides_df = project_results_to_rides(df_results)
 
     df_predictions = load_predictions_df()
-    project_results_to_rides(df_predictions)
+    projected_drives_df = project_results_to_rides(df_predictions)
 
     breakpoint()
 
