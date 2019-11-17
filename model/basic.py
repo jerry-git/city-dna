@@ -87,7 +87,7 @@ def generate_model(train_x, train_y):
 
 
 if __name__ == '__main__':
-    train = False
+    train = True
     predict = True
 
     train_y = []
@@ -115,17 +115,26 @@ if __name__ == '__main__':
 
         new_data = pd.DataFrame(predicted_data, index=test_y.index)
         test = np.asarray(test_y)
+
         # visualize
         fig = plt.figure()
+        fig.patch.set_facecolor((1.0, 0.60, 0.9))
         ax1 = fig.add_subplot(121)
         # Bilinear interpolation - this will look blurry
-        ax1.imshow(test*2, interpolation='bilinear',
-                   cmap=cm.Greys_r, aspect=100)
+        ax1.imshow(test_y, interpolation='bilinear',
+                   cmap=cm.Greys_r)
+        plt.title('Truth')
+        plt.xlabel('Unique routes')
+        plt.ylabel('time')
+
 
         ax2 = fig.add_subplot(122)
         # 'nearest' interpolation - faithful but blocky
         ax2.imshow(predicted_data, interpolation='nearest',
-                   cmap=cm.Greys_r, aspect=100)
+                   cmap=cm.Greys_r)
+        plt.title('Prediction')
+        plt.xlabel('Unique routes')
+        plt.ylabel('time')
 
-        # plt.show()
-        new_data.to_csv("test_20percent.csv", index=True)
+        plt.show()
+        # new_data.to_csv("test_20percent.csv", index=True)
