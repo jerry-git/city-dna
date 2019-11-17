@@ -13,8 +13,8 @@ import "./Map.css";
 
 const MAPBOX_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
 
-const start_time = "2019-09-10 07:00:00"
-const end_time = "2019-09-10 23:00:00"
+const start_time = "2019-09-05 07:00:00"
+const end_time = "2019-09-05 21:00:00"
 
 
 
@@ -161,7 +161,7 @@ export class FlowMap extends Component {
                 getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
                 getColor: d => theme.trailColor0,
                 opacity: 0.3,
-                widthMinPixels: 10,
+                widthMinPixels: 5,
                 rounded: true,
                 trailLength,
                 currentTime: this.state.time,
@@ -174,8 +174,8 @@ export class FlowMap extends Component {
                 getPath: d => d.path,
                 getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
                 getColor: d => theme.trailColor1,
-                opacity: 0.1,
-                widthMinPixels: 4,
+                opacity: 0.3,
+                widthMinPixels: 5,
                 rounded: true,
                 trailLength,
                 currentTime: this.state.time,

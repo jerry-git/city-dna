@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 from flask import jsonify, request
 
@@ -17,7 +19,6 @@ def stations():
 
 @app.route("/weather", methods=["GET"])
 def weather():
-
     df = app.weather_df
     return jsonify(
         [
@@ -25,7 +26,7 @@ def weather():
                 "time": str(row.time),
                 "temp": row.air_temperature,
                 "rain": row.precipitation,
-                "clouds": row.cloud_amount_1_8
+                "clouds": row.cloud_amount_1_8,
             }
             for _, row in df.iterrows()
         ]
@@ -34,10 +35,13 @@ def weather():
 
 @app.route("/drives", methods=["POST"])
 def drives():
+    predicted = request.args.get("predicted")
+    if predicted:
+        logging.warning("Returning predictions")
     payload = request.json
     start = pd.Timestamp(payload["start"])
     end = pd.Timestamp(payload["end"])
-    df = app.bike_drives_df
+    df = app.predicted_drives_df if predicted else app.bike_drives_df
     df = df.loc[(df.departure_time >= start) & (df.return_time <= end)]
 
     return jsonify(
