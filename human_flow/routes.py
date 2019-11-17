@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 from flask import jsonify, request
 
@@ -34,6 +36,8 @@ def weather():
 @app.route("/drives", methods=["POST"])
 def drives():
     predicted = request.args.get("predicted")
+    if predicted:
+        logging.warning("Returning predictions")
     payload = request.json
     start = pd.Timestamp(payload["start"])
     end = pd.Timestamp(payload["end"])
