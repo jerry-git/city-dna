@@ -13,8 +13,8 @@ import "./Map.css";
 
 const MAPBOX_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
 
-const start_time = "2019-09-05 07:00:00"
-const end_time = "2019-09-05 21:00:00"
+const start_time = "2019-09-06 03:00:00"
+const end_time = "2019-09-06 23:00:00"
 
 
 
@@ -112,7 +112,7 @@ export class FlowMap extends Component {
         return time.format('X');
     }
     _utx_to_datetime(value) {
-        return moment.unix(value).format("MM/DD/YYYY hh:mm:ss");
+        return moment.unix(value).format("dddd MM/DD/YYYY kk:mm");
     }
 
     _animate() {
@@ -121,14 +121,15 @@ export class FlowMap extends Component {
         } = this.props;
 
         const timer = (Date.now() / 1000) - this.state.start_of_animation;
-        // console.log(this.state.time)
-        // this.state.weatherdata[10].temp
+
         this.setState({
             time: Math.floor((timer * animationSpeed))
         });
-        // this.setState({
-        //     weather_info_text: temp
-        // });
+        var index = Number(this.state.start_of_data) + this.state.time - Number(this._convert_time(this.state.weatherdata[1].time))
+        index = Math.floor(index/3600) +1
+        this.setState({
+            weather_info_text: " Temp: " + this.state.weatherdata[index].temp + "C " + " Clouds: " + this.state.weatherdata[index].clouds +" Rain: " + this.state.weatherdata[index].rain
+        });
 
 
         this._animationFrame = window.requestAnimationFrame(this._animate.bind(this));
@@ -159,7 +160,7 @@ export class FlowMap extends Component {
                 data: trips,
                 getPath: d => d.path,
                 getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
-                getColor: d => theme.trailColor0,
+                getColor: d => theme.trailColor1,
                 opacity: 0.3,
                 widthMinPixels: 5,
                 rounded: true,
@@ -173,7 +174,7 @@ export class FlowMap extends Component {
                 data: predicted_trips,
                 getPath: d => d.path,
                 getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
-                getColor: d => theme.trailColor1,
+                getColor: d => theme.trailColor0,
                 opacity: 0.3,
                 widthMinPixels: 5,
                 rounded: true,
@@ -181,7 +182,7 @@ export class FlowMap extends Component {
                 currentTime: this.state.time,
 
                 shadowEnabled: false
-            }),
+            })
         ];
     }
 
@@ -194,7 +195,8 @@ export class FlowMap extends Component {
 
         return (
             <React.Fragment>
-                <h2 className="center">{"WEATHER:" + this.state.weather_info_text + "TIME : " + this._utx_to_datetime(Number(this.state.start_of_data) + this.state.time)}</h2>
+                <h2 className="center">{this._utx_to_datetime(Number(this.state.start_of_data) + this.state.time) }</h2>
+                <h2 className="center">{this.state.weather_info_text}</h2>
                 <div style={{ position: "relative" }}>
                     <DeckGL
                         layers={this._renderLayers()}
