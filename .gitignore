@@ -24,7 +24,7 @@ dist/*
 docs
 /data
 /data-raw
-
+.vscode
 model.h5
 
 
