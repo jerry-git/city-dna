@@ -17,7 +17,7 @@ bike_drives_df = pd.read_csv(
 
 PREDICTIONS_CSV = str(Path(__file__).parents[1] / "data" / "predictions.csv")
 predicted_drives_df = pd.read_csv(
-    DRIVES_DATA_CSV, parse_dates=["departure_time", "return_time"]
+    PREDICTIONS_CSV, parse_dates=["departure_time", "return_time"]
 )
 
 
