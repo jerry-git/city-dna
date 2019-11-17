@@ -13,8 +13,8 @@ import "./Map.css";
 
 const MAPBOX_TOKEN = "pk.eyJ1Ijoic2tlbGV0b3JraW5nIiwiYSI6ImNrMzE1cWFyYTA1OGczbnFqZ3pmYjI4cTEifQ.DjA1AD39dGKcW9kn94_hFQ";
 
-const start_time = "2019-08-11 22:00:00"
-const end_time = "2019-08-12 05:00:00"
+const start_time = "2019-09-14 23:00:00"
+const end_time = "2019-09-14 07:00:00"
 
 
 
@@ -37,6 +37,7 @@ export class FlowMap extends Component {
         this.state = {
             time: 0,
             drivedata: {},
+            predicted_drive_data: {},
             stationdata: {},
             weatherdata: {},
             weather_info_text: "",
@@ -70,7 +71,20 @@ export class FlowMap extends Component {
         }).catch(function (error) {
             console.log(error);
         });
-
+        axios({
+            method: 'post',
+            url: 'http://127.0.0.1:5000/drives',
+            data: {
+                "start": start_time,
+                "end": end_time,
+                "predicted": 1
+            }
+        }).then((response) => {
+            console.log(response);
+            this.setState({ predicted_drive_data: response.data })
+        }).catch(function (error) {
+            console.log(error);
+        });
         axios({
             method: 'post',
             url: 'http://127.0.0.1:5000/drives',
@@ -121,18 +135,11 @@ export class FlowMap extends Component {
         this._animationFrame = window.requestAnimationFrame(this._animate.bind(this));
     }
 
-    _renderWeather() {
-        const {
-            weather = [[24.931223405177413, 60.171870055373205], [24.94947287873, 60.1650171805]]
-        } = this.props;
-
-        return this.state.time;
-    }
 
     _renderLayers() {
         const {
             trips = this.state.drivedata,
-
+            predicted_trips = this.state.predicted_drive_data,
             trailLength = 80,
             theme = DEFAULT_THEME,
 
@@ -155,8 +162,22 @@ export class FlowMap extends Component {
                 getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
                 getColor: d => theme.trailColor0,
                 opacity: 0.5,
-                widthMinPixels: 4,
-                rounded: false,
+                widthMinPixels: 5,
+                rounded: true,
+                trailLength,
+                currentTime: this.state.time,
+
+                shadowEnabled: false
+            }),
+            new TripsLayer({
+                id: 'trips',
+                data: predicted_trips,
+                getPath: d => d.path,
+                getTimestamps: d => [this._convert_time(d.timestamps[0]) - this._convert_time(start_time), this._convert_time(d.timestamps[1]) - this._convert_time(start_time)],
+                getColor: d => theme.trailColor1,
+                opacity: 0.5,
+                widthMinPixels: 5,
+                rounded: true,
                 trailLength,
                 currentTime: this.state.time,
 

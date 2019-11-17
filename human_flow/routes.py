@@ -17,7 +17,7 @@ def stations():
 
 @app.route("/weather", methods=["GET"])
 def weather():
-    breakpoint()
+
     df = app.weather_df
     return jsonify(
         [
