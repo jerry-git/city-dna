@@ -4,9 +4,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from human_flow.data import bike_station
+# from human_flow.data import bike_station
 
-STATION_IDS = list(sorted(bike_station.CLUSTERED_LOCATIONS.keys()))
+# STATION_IDS = list(sorted(bike_station.CLUSTERED_LOCATIONS.keys()))
 
 DATA_DIR = Path(__file__).parents[1] / "data" / "clean"
 

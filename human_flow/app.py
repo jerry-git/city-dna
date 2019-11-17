@@ -1,6 +1,7 @@
 """
 isort:skip_file
 """
+
 from pathlib import Path
 
 import pandas as pd
@@ -14,9 +15,14 @@ bike_drives_df = pd.read_csv(
     DRIVES_DATA_CSV, parse_dates=["departure_time", "return_time"]
 )
 
+
+WEATHER_DIR = str(
+    Path(__file__).parents[1] / "data" / "clean" / "weather" / "2019-07-09.csv")
+weather_df = pd.read_csv(WEATHER_DIR, parse_dates=["time"])
+
+
 app = Flask(__name__)
 CORS(app)
 app.bike_drives_df = bike_drives_df
-
-
+app.weather_df = weather_df
 from human_flow import routes

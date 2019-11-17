@@ -15,6 +15,23 @@ def stations():
     )
 
 
+@app.route("/weather", methods=["GET"])
+def weather():
+    breakpoint()
+    df = app.weather_df
+    return jsonify(
+        [
+            {
+                "time": str(row.time),
+                "temp": row.air_temperature,
+                "rain": row.precipitation,
+                "clouds": row.cloud_amount_1_8
+            }
+            for _, row in df.iterrows()
+        ]
+    )
+
+
 @app.route("/drives", methods=["POST"])
 def drives():
     payload = request.json

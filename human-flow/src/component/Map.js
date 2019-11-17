@@ -38,6 +38,8 @@ export class FlowMap extends Component {
             time: 0,
             drivedata: {},
             stationdata: {},
+            weatherdata: {},
+            weather_info_text: "",
             start_of_animation: Date.now() / 1000,
             start_of_data: this._convert_time(start_time)
 
@@ -53,6 +55,18 @@ export class FlowMap extends Component {
         }).then((response) => {
             console.log(response);
             this.setState({ stationdata: response.data })
+        }).catch(function (error) {
+            console.log(error);
+        });
+
+        axios({
+            method: 'get',
+            url: 'http://127.0.0.1:5000/weather',
+            data: {
+            }
+        }).then((response) => {
+            console.log(response);
+            this.setState({ weatherdata: response.data })
         }).catch(function (error) {
             console.log(error);
         });
@@ -95,10 +109,14 @@ export class FlowMap extends Component {
 
         const timer = (Date.now() / 1000) - this.state.start_of_animation;
         // console.log(this.state.time)
-
+        // this.state.weatherdata[10].temp
         this.setState({
             time: Math.floor((timer * animationSpeed))
         });
+        // this.setState({
+        //     weather_info_text: temp
+        // });
+
 
         this._animationFrame = window.requestAnimationFrame(this._animate.bind(this));
     }
@@ -156,7 +174,7 @@ export class FlowMap extends Component {
 
         return (
             <React.Fragment>
-                <h1 class="center">{this._utx_to_datetime(Number(this.state.start_of_data) + this.state.time)}</h1>
+                <h2 className="center">{"WEATHER:" + this.state.weather_info_text + "TIME : " + this._utx_to_datetime(Number(this.state.start_of_data) + this.state.time)}</h2>
                 <div style={{ position: "relative" }}>
                     <DeckGL
                         layers={this._renderLayers()}

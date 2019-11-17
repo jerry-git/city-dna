@@ -1,16 +1,17 @@
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, LSTM, Embedding, Reshape
+from keras.layers import Dense, Dropout, LSTM, Reshape
 from keras.utils import to_categorical
 
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 import pandas as pd
-from utils import load_weather_df
+from utils import load_weather_df, load_results_df
 
 from datetime import datetime
 import numpy as np
+
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
 def data_preprocessing(data):
@@ -61,22 +62,25 @@ def generate_model(train_x, train_y):
 
     model = Sequential()
     model.add(Dense(64, activation='relu',
-                    input_dim=input_training_data.shape[0]))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.3))
+                    input_dim=train_x.shape[1]))
+    model.add(Dense(64, activation='sigmoid'))
+    model.add(Dropout(0.4))
     model.add(Dense(256, activation='relu'))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.4))
     model.add(Dense(512, activation='relu'))
+    model.add(Dropout(0.4))
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dropout(0.4))
 
-    model.add(Dense(output_training_data.shape[0]), activation='relu')
+    model.add(Dense(train_y.shape[1], activation='relu'))
 
     model.compile(optimizer='adam',
                   loss='mean_squared_error',
                   metrics=['accuracy'])
 
     # Train the model, iterating on the data in batches of 32 samples
-    model.fit(input_training_data, output_training_data,
-              epochs=20, batch_size=182)
+    model.fit(train_x, train_y,
+              epochs=50, batch_size=32)
 
     model.save("model.h5")
     return model
@@ -84,18 +88,19 @@ def generate_model(train_x, train_y):
 
 if __name__ == '__main__':
     train = False
-    predict = False
+    predict = True
 
     train_y = []
     test_y = []
 
     data = load_weather_df()
     data = clean_data(data)
-
+    data = data[:-1]
     train_x, test_x = data_preprocessing(data)
 
-    print(data.shape)
-    print(np.asarray(data))
+    output_data = load_results_df()
+    train_y, test_y = data_preprocessing(output_data)
+
     if train:
         model = generate_model(train_x, train_y)
 
@@ -105,4 +110,22 @@ if __name__ == '__main__':
         print(score)
         print(model.summary())
 
-        predicet_data = model.predict(test_x)
+        predicted_data = model.predict(test_x)
+        print(predicted_data)
+
+        new_data = pd.DataFrame(predicted_data, index=test_y.index)
+        test = np.asarray(test_y)
+        # visualize
+        fig = plt.figure()
+        ax1 = fig.add_subplot(121)
+        # Bilinear interpolation - this will look blurry
+        ax1.imshow(test*2, interpolation='bilinear',
+                   cmap=cm.Greys_r, aspect=100)
+
+        ax2 = fig.add_subplot(122)
+        # 'nearest' interpolation - faithful but blocky
+        ax2.imshow(predicted_data, interpolation='nearest',
+                   cmap=cm.Greys_r, aspect=100)
+
+        # plt.show()
+        new_data.to_csv("test_20percent.csv", index=True)
